@@ -1,7 +1,6 @@
 const { response } = require ('express');
 const Usuario = require('../models/usuario') ;
 const bcryptjs = require('bcryptjs');
-const { validationResult } = require('express-validator');
 
 const usuariosGet = (req, res = response )=> {
     res.json({
@@ -11,21 +10,11 @@ const usuariosGet = (req, res = response )=> {
 
  const usuariosPost = async (req, res = response )=> {
 
-    const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        return res.status(400).json(errors);
-    }
 
     const { nombre, correo, password, rol }  = req.body;
 
     const usuario = new Usuario( { nombre, correo, password, rol } );
 
-    const existeEmail = await Usuario.findOne({correo});
-    if(existeEmail){
-        return res.status(400).json({
-            msg: 'Ese correo ya existe'
-        });
-    }
 
     //Encriptar 
     const salt = bcryptjs.genSaltSync();
@@ -40,9 +29,17 @@ const usuariosGet = (req, res = response )=> {
     });
  }  
 
- const usuariosPut = (req, res = response )=> {
+ const usuariosPut = async(req, res = response )=> {
     const id = req.params.id;
+    const {password, google, correo,  ...resto} = req.body;
+    
+    if(password){
+        const salt = bcryptjs.genSaltSync();
+        resto.password = bcryptjs.hashSync(password,salt);
+    }
 
+    const usuario = await Usuario.findByIdAndDelete(id, resto);
+    
     res.json({
         msg: 'Put Api - controlador',
         id
