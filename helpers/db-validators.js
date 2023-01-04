@@ -19,7 +19,6 @@ const emailValido = async (correo = ' ') =>{
 
 const idExistente = async (id) =>{
     const existeId = await Usuario.findById(id);
-    console.log('idvalido f');
     if(!existeId){
         console.log('if de no existe id');
         throw new Error (`El id ${ id } no existe`)

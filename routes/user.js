@@ -1,6 +1,6 @@
 const { Router } = require ('express');
 const { check } = require('express-validator');
-const { ChainCondition } = require('express-validator/src/context-items');
+//const { ChainCondition } = require('express-validator/src/context-items');
 
 const { usuariosGet, 
         usuariosPut,
@@ -10,7 +10,9 @@ const { usuariosGet,
 const { esRolValido, 
         emailValido, 
         idExistente} = require('../helpers/db-validators');
+
 const { validarCampos } = require('../middlewares/validar-campos');
+const { validarJWT } = require('../middlewares/validar-jwt');
 
 const router = Router();
 
@@ -36,6 +38,7 @@ router.post('/', [
 ], usuariosPost );
 
 router.delete('/:id',[
+    validarJWT,
     check('id', 'No es un id valido').isMongoId(),
     check('id').custom(idExistente),
     validarCampos
